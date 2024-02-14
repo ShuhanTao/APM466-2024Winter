@@ -1,0 +1,176 @@
+---
+title: "APM466-A1"
+author: "Shuhan Tao"
+date: "2024-02-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(jrvFinance)
+library(ggplot2)
+```
+
+## 4a
+```{r}
+#import data
+p = read.csv("bonddata_filled.csv")
+yield = matrix(nrow = 10,ncol = 10)
+colnames(yield)=c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
+                "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20")
+```
+
+```{r}
+#define function to calculate yield to maturity of bonds
+for (i in 1:10) {
+  for (j in 1:10){
+      price_col = colnames(p)[i+3]
+      ytm_col = colnames(yield)[i]
+      coupon_rate = p$coupon_rate[j]
+      bond_value = p[[price_col]][j]
+      maturity_date = p$maturity_date[j]
+      tmp=bond.yield(ytm_col, maturity_date, coupon = coupon_rate , freq = 2, bond_value, comp.freq = 2,  redemption_value = 100)
+      yield[j,i] = tmp
+    }
+  }
+yield
+```
+```{r}
+#plot yield curve
+plot(seq(0.5,5,0.5),yield[,1],type="l", col=1, ylim=c(0.025,0.045), xlab="years",ylab="yield", 
+     main =" 5-Year Yield Curve")
+for (k in 2:10) {
+  lines(seq(0.5,5,0.5),yield[,k], col=k)
+}
+legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
+                           "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
+       lty=c(1,1), lwd=c(4,4),cex=0.65, col=1:5)
+```
+## 4b
+```{r}
+#handle data
+c = p$coupon_rate * 0.5
+v = data.frame(p[,c(4:14)])
+spot <-matrix(ncol = 10, nrow = 10)
+#traverse through dates
+for (i in 1:10) {
+  s = c()
+  take = v[i]
+  for (j in 1:10) {
+    if (j==1){
+      nn = -2*log(take[j,]/(100*c[j] + 100))
+      s[j]=nn
+    }
+    else {
+      p_n = 0
+      for (k in 1:(j-1)) {
+        p_n = p_n + 100 * c[j] * exp(-s[k]*(0.5*k))
+      }
+      jt = log((take[j,]-p_n)/(100*c[j] + 100))/((-1/2)*j)
+      s[j] = jt
+    }
+  }
+  spot[,i] = s
+}
+spot
+```
+
+```{r}
+#plot spot curve
+plot(seq(0.5,5,0.5),spot[,1],type="l", col=1, ylim= c(0.02,0.07), xlab="years",ylab="spot rate", 
+     main =" 5-Year Spot Curve")
+for (m in 2:10) {
+  lines(seq(0.5,5,0.5),spot[,m], col=m)
+}
+legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
+                           "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
+       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:5)
+```
+## 4c
+```{r}
+forward = matrix(ncol = 10, nrow = 4)
+# traverse through dates
+for (i in 1:10) {
+  s_c = spot[, i]
+  t = s_c[2]
+  fw = c()
+  for (j in 2:5) {
+    temp = (s_c[j*2]*j - t)/(j - 1)
+    fw[j - 1] = temp
+  }
+  forward[,i] = fw
+}
+forward
+```
+
+```{r}
+#plot forward curve
+plot(forward[,1],type="l", col=1,ylim = c(0.02,0.04),xlab="years",ylab="forward rate", 
+     main =" Forward curve")
+for (n in 2:10) {
+  lines(c(1,2,3,4),forward[,n], col=n)
+}
+legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
+                           "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
+       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:5)
+
+```
+## 5
+
+```{r}
+#step 1
+yy = matrix(ncol = 9, nrow = 5)
+for (i in 1:9){
+  for (j in 1:5){
+    yy[j,i] = log(yield[j*2,i+1]/yield[j*2, i])
+  }
+}
+yy <- t(yy)
+cov_y = cov(yy)
+cov_y
+```
+
+```{r}
+#step 2
+fo <- matrix(ncol = 9, nrow = 4)
+for (i in 1:9){
+  for (j in 1:4){
+    fo[j,i] = log(forward[j,i+1]/forward[j,i])
+  }
+}
+fo = t(fo)
+cov_f = cov(fo)
+cov_f
+```
+## 6
+```{r}
+y_v <- eigen(cov_y)
+```
+
+```{r}
+y_v$values
+```
+
+```{r}
+y_v$vectors
+```
+
+```{r}
+f_v <- eigen(cov_f)
+```
+
+```{r}
+f_v$values
+```
+
+```{r}
+f_v$vectors
+```
+
+
+
+
