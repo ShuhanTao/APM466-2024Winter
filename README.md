@@ -1,3 +1,3 @@
 # MAT1856-A1
-Math Finance - University of Toronto
-conducted by Pf. luis Seco
+Math Finance - University of Toronto;
+Conducted by Dear Professor Luis Seco
