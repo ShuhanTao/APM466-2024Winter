@@ -1,5 +1,5 @@
 ---
-title: "APM466-A1"
+title: "MAT1856/APM466-A1"
 author: "Shuhan Tao"
 date: "2024-02-11"
 output: 
