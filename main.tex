@@ -1,0 +1,167 @@
+\documentclass{article}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={6.4in, 10.5in}]{geometry}
+\usepackage{amsmath, tikz, amsfonts, bbm, mathrsfs, graphicx, amssymb, amsthm, hyperref, centernot, enumerate, bbm, xcolor, lmodern, mathdots, amsfonts, graphicx, algorithm, algpseudocode}
+
+\title{MAT1856/APM466 Assignment 1}
+\author{Shuhan Tao, Student \#: 1005094568}
+\date{February 10th, 2024}
+
+\begin{document}
+
+\maketitle
+
+\section*{Fundamental Questions - 25 points}
+
+\begin{enumerate}
+    \item \hfill
+    \begin{enumerate}
+        \item Excessive money printing leads to inflation and undermines confidence in a country's currency, issuing bonds allows the government to raise funds while maintaining control over monetary policy and confidence in the currency.
+        \item Assume a situation where an economy has been experiencing strong economic growth accompanied by low employment and moderate inflation, the long-term yields are less attractive to the pessimistic investors. To prevent the economy from overheating and to control inflation, the central bank gradually raises short-term interest rates, investors anticipate continued interest rate hikes by the central bank and therefore seek safety and stability in the midst of uncertainty and therefore turn to long-term bond holdings, this increase in the demand for long-term bonds pushed up their price and yields fall.
+        \item Quantitative easing is a monetary policy tool used by central banks to stimulate the economy by purchasing government securities or other financial assets from the market, to lower long-term interest rates, to increase money supply, and to encourage borrowing and investment, thereby boosting economic activity and inflation. Since March 2020, the Federal Reserve has committed to purchasing large quantities of Treasuries and mortgage-backed securities to inject liquidity into the financial markets and support lending activity. 
+    \end{enumerate}
+    \item Since the government of Canada issues its bonds with a semi-annual coupon, I try to pick bonds that the maturity dates of which have a half year gap hence the yields are easier to compare. And the data is evenly distributed. The selected bonds are listed below, since the last one of ideal bonds cannot be found, I chose a closed one matures on June 1 instead.
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.8\linewidth]{Screenshot 2024-02-13 at 10.46.00 PM.png}    
+    \end{figure}
+    \item Eigenvalues represent the amount of variance explained by each eigenvector or direction on the curve. Larger eigenvalues indicate greater variability, and smaller eigenvalues indicate less variability. Eigenvectors represent the direction or pattern of motion on the curve that explains the most variance. Each eigenvector points in a particular direction along the curve, indicating the interrelationship of the stochastic processes in terms of motion or fluctuation. The eigenvalues and eigenvectors associated with the covariance matrices of a number of stochastic processes can tell us about the variability and direction of motion along a stochastic curve.
+\end{enumerate}
+
+
+
+\section*{Empirical Questions - 75 points} 
+
+\begin{enumerate}
+\setcounter{enumi}{3} 
+    \item \hfill
+    \begin{enumerate}
+        \item  
+        I chose to use linear interpolation because it's straightforward and computationally efficient.
+        \\ First, the 10 selected bonds' ytm is shown below:
+        \newpage
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-13 at 10.49.33 PM.png}
+        \end{figure}
+        Codes and the whole process can be found on GitHub. The yield curve is shown below:
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.78\linewidth]{yield-curve-1.pdf}
+            \caption{The inverted yield curve show preference towards short-term assets.}
+        \end{figure}
+        
+        
+        \item the pseudo-code:
+        \begin{algorithm}[H]
+        \caption{Calculate Spot Rates Ranging with terms from 1-5 years using chosen bonds }
+            \begin{algorithmic}[1]
+                \State\textbf{Input:} semi-annual coupon rates of all bonds ($C$), market price of all bonds on 10 days ($P$)
+                \State \textbf{Output:} $10 \times 10$ matrix ($Spot$)
+                \State initialize an empty $10 \times 10$ matrix $Spot$
+                \For{$i \gets 1$ \textbf{to} $10$}
+                \State initialize an empty list $s$
+                \State initialize $t$ $\gets p[i]$
+                \For{$j \gets 1$ \textbf{to} $10$}
+                \If {$j = 1$}
+                \State initialize $w$ $\gets \frac{-2 \times \log(t[j,])}{(100 \times C[j] + 100})$
+                \State $s[j]$ $\gets w$
+                \Else 
+                \State initialize $z$ $\gets 0$
+                \For{$k \gets 1$ \textbf{to} $j-1$}
+                \State $z$ $\gets z + 100 \times C[j] \times exp(-s[k]\times 0.5\times k)$
+                \EndFor
+                \State initialize $l$ $\gets$ $\frac{\log(\frac{(t[j,]-z}{100 \times C[j] + 100}}{-0.5 \times j}$
+                \State $s[j]$ $\gets l$
+                \EndIf
+                \EndFor
+                \State $spot[,i]$ $\gets s$
+                \EndFor
+            \end{algorithmic}            
+        \end{algorithm}
+        First, the table of spot rates is shown below:
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.7\linewidth]{Screenshot 2024-02-13 at 11.21.15 PM.png}   
+        \end{figure}
+        
+        The spot curve is shown below:
+        
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.7\linewidth]{spot-curve-1.pdf}
+            \caption{The spot curve matches the trend of the yield curve.}
+        \end{figure}
+        \item the pseudo-code:
+        \begin{algorithm}[H]
+        \caption{Calculate Forward Rates from Spot Rates }
+            \begin{algorithmic}[1]
+                \State \textbf{Output:} $4 \times 10$ matrix ($Forward$)
+                \State initialize an empty $4 \times 10$ matrix $Forward$
+                \For{$i \gets 1$ \textbf{to} $10$}
+                \State initialize $s$ $\gets spot[,i]$
+                \State initialize $m$ $\gets s[2]$
+                \State initialize an empty list $fw$
+                \For{$j \gets 2$ \textbf{to} $5$}
+                \State initialize $tmp$ $\gets \frac{s[2\times j]\times j - m}{j-1}$
+                \State initialize $fw[j-1]$ $\gets tmp$
+                \EndFor
+                \State $Forward[,i]$ $\gets fw$
+                \EndFor      
+            \end{algorithmic}
+       \end{algorithm}
+        
+        The table of forward rates, and the forward curve are shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.7\linewidth]{Screenshot 2024-02-14 at 1.15.57 AM.png} 
+        \end{figure}
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.67\linewidth]{forward-curve-1.pdf}
+            \caption{The forward curve is inverted, flattening at the end.}
+        \end{figure}  
+    \end{enumerate}
+        \item 
+        The covariance matirx for the time series of daily log-returns of yield is shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 12.58.38 AM.png}    
+        \end{figure}
+        The covariance matirx for the forward rates is shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 12.58.59 AM.png}
+        \end{figure}
+        \item 
+        Eigenvalues of the covariance matirx for the time series of daily log-returns of yield are shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 1.06.45 AM.png}
+        \end{figure}
+        
+        Eigenvectors of the covariance matirx for the time series of daily log-returns of yield are shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 1.06.58 AM.png}
+        \end{figure}
+        
+        Eigenvalues of the covariance matirx for the forward rates are shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 1.13.55 AM.png}
+        \end{figure}
+        
+        Eigenvectors of the covariance matirx for the forward rates are shown below:
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2024-02-14 at 1.14.06 AM.png}
+        \end{figure}
+        
+        The eigenvalue reflects the direction of maximum variability and eigenvectors reflect the size of the maximum variability.
+\end{enumerate}
+
+\section*{References and GitHub Link to Code}
+https://github.com/ShuhanTao/MAT1856-A1
+\end{document}
