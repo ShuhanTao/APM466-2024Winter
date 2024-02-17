@@ -2,7 +2,10 @@
 title: "APM466-A1"
 author: "Shuhan Tao"
 date: "2024-02-11"
-output: pdf_document
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -39,7 +42,8 @@ for (i in 1:10) {
   }
 yield
 ```
-```{r}
+
+```{r yield-curve,fig.asp=0.5}
 #plot yield curve
 plot(seq(0.5,5,0.5),yield[,1],type="l", col=1, ylim=c(0.025,0.045), xlab="years",ylab="yield", 
      main =" 5-Year Yield Curve")
@@ -48,7 +52,7 @@ for (k in 2:10) {
 }
 legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
                            "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
-       lty=c(1,1), lwd=c(4,4),cex=0.65, col=1:5)
+       lty=c(1,1), lwd=c(4,4),cex=0.65, col=1:10, ncol = 4)
 ```
 ## 4b
 ```{r}
@@ -79,7 +83,7 @@ for (i in 1:10) {
 spot
 ```
 
-```{r}
+```{r spot-curve,fig.asp=0.6}
 #plot spot curve
 plot(seq(0.5,5,0.5),spot[,1],type="l", col=1, ylim= c(0.02,0.07), xlab="years",ylab="spot rate", 
      main =" 5-Year Spot Curve")
@@ -88,9 +92,13 @@ for (m in 2:10) {
 }
 legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
                            "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
-       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:5)
+       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:10, ncol = 3)
 ```
+
+
 ## 4c
+
+
 ```{r}
 forward = matrix(ncol = 10, nrow = 4)
 # traverse through dates
@@ -107,7 +115,7 @@ for (i in 1:10) {
 forward
 ```
 
-```{r}
+```{r forward-curve, fig.asp=0.6}
 #plot forward curve
 plot(forward[,1],type="l", col=1,ylim = c(0.02,0.04),xlab="years",ylab="forward rate", 
      main =" Forward curve")
@@ -116,7 +124,7 @@ for (n in 2:10) {
 }
 legend("topright",legend = c("2023/1/9", "2023/1/10","2023/1/11","2023/1/12","2023/1/13",
                            "2023/1/16","2023/1/17","2023/1/18","2023/1/19","2023/1/20"),
-       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:5)
+       lty=c(1,1), lwd=c(4,4),cex=0.8, col=1:10, ncol=3)
 
 ```
 ## 5
